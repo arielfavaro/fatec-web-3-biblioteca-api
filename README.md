@@ -1,66 +1,141 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Aula 07/11 – Desenvolvimento Web 3
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Projeto da disciplina de **Desenvolvimento Web 3** (Fatec), feito em Laravel. Ele cadastra **autores** e **livros** com relacionamento 1:N (um autor tem vários livros) e usa migrations, models Eloquent, factories e seeders.
 
-## About Laravel
+## Como executar
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+```bash
+composer install
+cp .env.example .env
+php artisan key:generate
+php artisan migrate:fresh --seed
+```
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+O comando `migrate:fresh --seed` recria as tabelas `autors` e `livros` e as popula com 5 autores, cada um com 1 a 3 livros gerados pelo Faker.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Estrutura do projeto
 
-## Learning Laravel
+| Arquivo | Descrição |
+| --- | --- |
+| `app/Models/Autor.php` | Model do autor (`hasMany` livros) |
+| `app/Models/Livro.php` | Model do livro (`belongsTo` autor) |
+| `database/migrations/..._create_autors_table.php` | Tabela `autors` (nome, email único, nascimento) |
+| `database/migrations/..._create_livros_table.php` | Tabela `livros` (titulo, isbn único, ano_publicacao, autor_id) |
+| `database/factories/AutorFactory.php` | Gera autores fictícios |
+| `database/factories/LivroFactory.php` | Gera livros fictícios |
+| `database/seeders/AutorSeeder.php` | Cria 5 autores com 1 a 3 livros cada |
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+---
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+## Perguntas e respostas
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 2000 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### 1. Arquitetura do Laravel
 
-## Laravel Sponsors
+**Qual padrão arquitetural o Laravel utiliza como base para organizar o código da aplicação e qual é o papel de cada uma de suas camadas?**
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+O Laravel segue o padrão **MVC (Model-View-Controller)**:
 
-### Premium Partners
+- **Model:** representa os dados e as regras de negócio. Cada model se comunica com uma tabela do banco por meio do Eloquent ORM (ex.: `Autor`, `Livro`).
+- **View:** é a camada de apresentação, ou seja, o que o usuário vê. No Laravel, as views costumam ser escritas com o Blade.
+- **Controller:** recebe a requisição (vinda das rotas), chama os models para buscar ou salvar dados e devolve uma resposta, que pode ser uma view, um JSON ou um redirecionamento.
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
-- **[WebReinvent](https://webreinvent.com/?utm_source=laravel&utm_medium=github&utm_campaign=patreon-sponsors)**
-- **[Lendio](https://lendio.com)**
+### 2. Estrutura de Diretórios
 
-## Contributing
+**Em uma instalação padrão do Laravel, onde ficam localizados os Models, os Controllers e os arquivos de Migrations?**
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+- **Models:** `app/Models`
+- **Controllers:** `app/Http/Controllers`
+- **Migrations:** `database/migrations`
 
-## Code of Conduct
+### 3. Conceito de Migrations
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+**O que são as Migrations no Laravel e qual problema elas resolvem no desenvolvimento em equipe?**
 
-## Security Vulnerabilities
+Migrations são arquivos PHP que descrevem a estrutura do banco de dados: criar tabelas, adicionar colunas, índices, chaves estrangeiras etc. Funcionam como um **controle de versão do banco**.
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Em equipe, elas evitam que cada desenvolvedor tenha que alterar o banco manualmente ou trocar scripts SQL. Como as migrations ficam no repositório junto com o código, basta rodar um comando para que todos tenham exatamente a mesma estrutura. Além disso, cada alteração pode ser desfeita.
 
-## License
+### 4. Execução de Migrations
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+**Qual comando do Artisan é utilizado para aplicar as migrations pendentes no banco de dados e qual comando desfaz a última operação de migração?**
+
+- Aplicar as migrations pendentes:
+
+  ```bash
+  php artisan migrate
+  ```
+
+- Desfazer o último lote (batch) de migrations executado:
+
+  ```bash
+  php artisan migrate:rollback
+  ```
+
+### 5. Eloquent ORM e Models
+
+**O que é o Eloquent ORM e como ele relaciona o nome de uma classe Model (por exemplo, Member ou Book) com a tabela correspondente no banco de dados?**
+
+O **Eloquent** é o ORM (*Object-Relational Mapping*) do Laravel. Ele permite trabalhar com o banco de dados por meio de objetos PHP, sem precisar escrever SQL: cada model representa uma tabela e cada instância do model representa um registro.
+
+Por convenção, o nome da tabela é o nome da classe em **snake_case e no plural, em inglês**:
+
+- `Member` → tabela `members`
+- `Book` → tabela `books`
+
+Quando a tabela não segue essa convenção, basta informar o nome na propriedade `$table`. Neste projeto, por exemplo, o model `Livro` declara `protected $table = 'livros';`.
+
+### 6. Propriedade $fillable
+
+**Para que serve a propriedade $fillable dentro de um Model e contra qual vulnerabilidade de segurança ela protege a aplicação?**
+
+O `$fillable` lista os campos que podem ser preenchidos em massa, como em `Livro::create($request->all())`. Os campos que não estão na lista são ignorados.
+
+Ele protege contra a vulnerabilidade de **Mass Assignment** (atribuição em massa). Nesse ataque, o usuário envia campos extras na requisição (por exemplo, `is_admin=1`) para alterar colunas que não deveria poder modificar.
+
+```php
+protected $fillable = ['titulo', 'isbn', 'ano_publicacao', 'autor_id'];
+```
+
+### 7. Propriedade $casts
+
+**Qual é a finalidade da propriedade $casts em um Model do Laravel? Cite um exemplo prático de uso.**
+
+O `$casts` converte automaticamente os atributos para um tipo específico quando eles são lidos ou gravados no banco, como `date`, `boolean`, `integer`, `array` ou `decimal:2`.
+
+Exemplo do model `Autor` deste projeto:
+
+```php
+protected $casts = [
+    'nascimento' => 'date',
+];
+```
+
+Com isso, `$autor->nascimento` passa a ser um objeto `Carbon` em vez de uma string, e é possível fazer `$autor->nascimento->format('d/m/Y')` ou `$autor->nascimento->age`. Outro exemplo comum é `'ativo' => 'boolean'`, que transforma o `0`/`1` do banco em `false`/`true`.
+
+### 8. Conceito de Seeders
+
+**O que são os Seeders no Laravel e em quais situações eles são mais úteis durante o desenvolvimento de um sistema?**
+
+Seeders são classes que **populam o banco de dados** com dados iniciais ou de teste. Eles ficam em `database/seeders` e são executados com `php artisan db:seed` (ou junto com `php artisan migrate:fresh --seed`).
+
+São úteis para:
+
+- ter dados de teste prontos durante o desenvolvimento, sem cadastrar tudo manualmente;
+- criar dados obrigatórios do sistema, como um usuário administrador, categorias ou status padrão;
+- garantir que toda a equipe trabalhe com o mesmo conjunto de dados;
+- preparar o banco para testes automatizados.
+
+Neste projeto, o `AutorSeeder` cria 5 autores, cada um com 1 a 3 livros.
+
+### 9. Conceito de Factories
+
+**Qual é a função de uma Model Factory e qual biblioteca ela utiliza por padrão para gerar dados fictícios?**
+
+Uma **Model Factory** define um "molde" para criar instâncias de um model com dados fictícios. Ela permite gerar muitos registros de uma vez, como em `Autor::factory(5)->create()`, o que é bastante usado em seeders e testes.
+
+Por padrão, ela usa a biblioteca **Faker** (`fakerphp/faker`), acessada pelo helper `fake()`:
+
+```php
+'titulo' => fake()->sentence(3),
+'isbn'   => fake()->unique()->isbn13(),
+```
